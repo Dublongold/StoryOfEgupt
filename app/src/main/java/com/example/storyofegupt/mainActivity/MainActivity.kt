@@ -43,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         true
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -61,22 +59,25 @@ class MainActivity : AppCompatActivity() {
             )
         }
         lifecycleScope.launch(Dispatchers.IO) {
-            val response = NetworkRequest(this@MainActivity).getContent(NetworkRequest.URL_FOR_TEST)
-            if(!response.isNullOrEmpty() && response.contains("link")) {
-                val fromJsonString = if(response[response.indexOf("link") - 1] != '"') {
-                    response.replace("pusk", "\"pusk\"")
-                        .replace("link", "\"link\"")
-                }
-                else {
-                    response
-                }.replace("pusk", "allow").replace("link", "url")
-                val obj = Gson().fromJson(fromJsonString, ReceiverObject::class.java)
-                delay(2000) // For imitation a long loading.
-                if(obj.url != null) {
-                    startActivity(Intent(this@MainActivity, WebActivity::class.java))
-                    return@launch
+            try {
+                val response = NetworkRequest(this@MainActivity).getContent(NetworkRequest.URL_FOR_TEST)
+                if(!response.isNullOrEmpty() && response.contains("link")) {
+                    val fromJsonString = if(response[response.indexOf("link") - 1] != '"') {
+                        response.replace("pusk", "\"pusk\"")
+                            .replace("link", "\"link\"")
+                    }
+                    else {
+                        response
+                    }.replace("pusk", "allow").replace("link", "url")
+                    val obj = Gson().fromJson(fromJsonString, ReceiverObject::class.java)
+                    delay(2000) // For imitation a long loading.
+                    if(obj.url != null) {
+                        startActivity(Intent(this@MainActivity, WebActivity::class.java))
+                        return@launch
+                    }
                 }
             }
+            catch(_: Exception) {}
             vm.changeDestination(MENU_DESTINATION)
         }
 

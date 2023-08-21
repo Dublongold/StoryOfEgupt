@@ -18,11 +18,17 @@ import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.storyofegupt.R
 import com.example.storyofegupt.network.ReceiverObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.IOException
+import kotlin.concurrent.thread
 
 class WebActivity: AppCompatActivity() {
     private val receiverObject: ReceiverObject by inject()
@@ -42,8 +48,8 @@ class WebActivity: AppCompatActivity() {
         someUrl = receiverObject.url
         configureWebView()
         onBackPressedDispatcher.addCallback {
-            if(mainWebView!!.canGoBack()) {
-                mainWebView!!.goBack()
+            mainWebView?.run {
+                if(canGoBack()) goBack()
             }
         }
     }
@@ -67,9 +73,12 @@ class WebActivity: AppCompatActivity() {
             }
         }
         mainWebView!!.webViewClient = MainWebViewClient()
-        mainWebView!!.loadUrl(someUrl!!)
+        someUrl?.let {
+            mainWebView!!.loadUrl(it)
+        }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun configureSetting() {
         mainWebView?.run {
             settings.run {
@@ -78,7 +87,9 @@ class WebActivity: AppCompatActivity() {
                 allowFileAccess = true
                 mixedContentMode = 0
                 cacheMode = WebSettings.LOAD_DEFAULT
-                userAgentString = mainWebView!!.settings.userAgentString.replace("; wv", "")
+                var oldVal = "; wv"
+                userAgentString = mainWebView!!.settings.userAgentString.replace(oldVal, "")
+                oldVal = ""
             }
             settings.run {
                 javaScriptCanOpenWindowsAutomatically = true
@@ -94,21 +105,25 @@ class WebActivity: AppCompatActivity() {
 
     inner class MainWebViewClient : WebViewClient() {
         private var content: Boolean? = null
-        private var method: String? = null
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val tempUri = request.url.toString()
             return if (tempUri.indexOf("/") != -1) {
-                if (tempUri.indexOf("intent://ti/p/") != -1 && tempUri.indexOf("#") != -1) {
-                    var someNewUrl = "line://ti/p/@"
-                    someNewUrl += tempUri.split("@".toRegex()).dropLastWhile { it.isEmpty() }
+                if (tempUri.indexOf(UsefulConstants.INTENT_CONST) != -1 && tempUri.indexOf("#") != -1) {
+                    var someNewUrl = "${UsefulConstants.INTENT_CONST}@"
+                    someNewUrl += tempUri.split(UsefulConstants.REGEX).dropLastWhile { it.isEmpty() }
                         .toTypedArray()[1]
                     someNewUrl = someNewUrl.split("#Inten".toRegex()).dropLastWhile { it.isEmpty() }
                         .toTypedArray()[0]
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(someNewUrl)))
                     true
                 } else {
-                    content = !tempUri.contains("http")
-                    if (!content!!) content!!
+                    val checkTempUri = {
+                        content = tempUri.contains("http")
+                        content
+                    }
+                    if(checkTempUri() == true) {
+                        content!!
+                    }
                     else {
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(tempUri)))
                         true
@@ -123,7 +138,6 @@ class WebActivity: AppCompatActivity() {
             account: String?,
             args: String
         ) {
-            method = "OnReceivedLoginReq"
             super.onReceivedLoginRequest(view, realm, account, args)
         }
     }
@@ -131,25 +145,35 @@ class WebActivity: AppCompatActivity() {
     val requestPermissionLauncher = registerForActivityResult<String, Boolean>(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean? ->
+        val tempFilePrefix = "file"
+        val tempFileSuffix = ".jpg"
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        var photoFile: File? = null
+        var photoFile: File?
         try {
-            photoFile = File.createTempFile("file", ".jpg", getExternalFilesDir(Environment.DIRECTORY_PICTURES))
+            val getPhotoFile = {
+                File.createTempFile(
+                    tempFilePrefix,
+                    tempFileSuffix,
+                    getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                )
+            }
+            photoFile = getPhotoFile()
         } catch (e: IOException) {
             Log.i("PhotoFile", "Unable to read file.")
+            photoFile = null
         }
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile))
         calback = Uri.fromFile(photoFile)
+        val oldType = "*/*"
         val old = Intent(Intent.ACTION_GET_CONTENT).also {
             it.addCategory(Intent.CATEGORY_OPENABLE)
-            it.type = "*/*"
+            it.type = oldType
         }
         val intentArray = arrayOf(takePictureIntent)
-        val chooserIntent = Intent(Intent.ACTION_CHOOSER).also {
+        startActivityForResult(Intent(Intent.ACTION_CHOOSER).also {
             it.putExtra(Intent.EXTRA_INTENT, old)
             it.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray)
-        }
-        startActivityForResult(chooserIntent, 1)
+        }, 1)
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -158,15 +182,17 @@ class WebActivity: AppCompatActivity() {
         fun someCheck() = if (calback != null) arrayOf(calback!!)  else null
 
         mainFilePathCallback?.run {
-            onReceiveValue(if (resultCode == -1) {
-                if (data != null) {
-                    val d = data.dataString
-                    if (d != null) {
-                        val u = Uri.parse(d)
-                        arrayOf(u)
-                    } else someCheck()
-                } else someCheck()
-            } else null)
+            onReceiveValue(
+                if (resultCode == -1) {
+                    data?.let { data ->
+                        data.dataString?.let { d ->
+                            val u = Uri.parse(d)
+                            arrayOf(u)
+                        }
+                    } ?: someCheck()
+                }
+                else null
+            )
         }
         mainFilePathCallback = null
     }

@@ -46,4 +46,5 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("io.insert-koin:koin-android:3.4.3")
     implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.android.installreferrer:installreferrer:2.2")
 }

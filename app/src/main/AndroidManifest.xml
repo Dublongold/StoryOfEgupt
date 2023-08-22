@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:theme="@style/Theme.WebStoryOfEqupt"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize"
             android:name=".webScreen.WebActivity"

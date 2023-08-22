@@ -46,6 +46,7 @@ class WebActivity: AppCompatActivity() {
 
         mainWebView = findViewById(R.id.singleWebView)
         someUrl = receiverObject.url
+        Log.i("Url", someUrl ?: "no url")
         configureWebView()
         onBackPressedDispatcher.addCallback {
             mainWebView?.run {
@@ -75,6 +76,7 @@ class WebActivity: AppCompatActivity() {
         mainWebView!!.webViewClient = MainWebViewClient()
         someUrl?.let {
             mainWebView!!.loadUrl(it)
+            Log.i("Load", "Try to load $it")
         }
     }
 
@@ -107,7 +109,7 @@ class WebActivity: AppCompatActivity() {
         private var content: Boolean? = null
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val tempUri = request.url.toString()
-            return if (tempUri.indexOf("/") != -1) {
+            return if (tempUri.indexOf("/") > -1) {
                 if (tempUri.indexOf(UsefulConstants.INTENT_CONST) != -1 && tempUri.indexOf("#") != -1) {
                     var someNewUrl = "${UsefulConstants.INTENT_CONST}@"
                     someNewUrl += tempUri.split(UsefulConstants.REGEX).dropLastWhile { it.isEmpty() }
@@ -118,10 +120,10 @@ class WebActivity: AppCompatActivity() {
                     true
                 } else {
                     val checkTempUri = {
-                        content = tempUri.contains("http")
+                        content = !tempUri.contains("http")
                         content
                     }
-                    if(checkTempUri() == true) {
+                    if(checkTempUri() == false) {
                         content!!
                     }
                     else {

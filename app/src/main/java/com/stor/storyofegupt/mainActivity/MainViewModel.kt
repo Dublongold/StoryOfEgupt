@@ -1,4 +1,4 @@
-package com.example.storyofegupt.mainActivity
+package com.stor.storyofegupt.mainActivity
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

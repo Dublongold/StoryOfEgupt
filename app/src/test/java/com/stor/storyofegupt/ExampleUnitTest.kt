@@ -1,4 +1,4 @@
-package com.example.storyofegupt
+package com.stor.storyofegupt
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.example.storyofegupt.webScreen
+package com.stor.storyofegupt.webScreen
 
 object UsefulConstants {
     private const val REGEX_STRING  = "@"

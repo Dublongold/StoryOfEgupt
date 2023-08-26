@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.storyofegupt"
-    compileSdk = 33
+    namespace = "com.stor.storyofegupt"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.storyofegupt"
+        applicationId = "com.stor.storyofegupt"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -47,4 +47,5 @@ dependencies {
     implementation("io.insert-koin:koin-android:3.4.3")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("com.android.installreferrer:installreferrer:2.2")
+    implementation("com.facebook.android:facebook-android-sdk:latest.release")
 }

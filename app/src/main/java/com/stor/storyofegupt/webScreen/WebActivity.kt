@@ -1,4 +1,4 @@
-package com.example.storyofegupt.webScreen
+package com.stor.storyofegupt.webScreen
 
 import android.Manifest;
 import android.annotation.SuppressLint
@@ -18,17 +18,11 @@ import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.example.storyofegupt.R
-import com.example.storyofegupt.network.ReceiverObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import com.stor.storyofegupt.R
+import com.stor.storyofegupt.network.ReceiverObject
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.IOException
-import kotlin.concurrent.thread
 
 class WebActivity: AppCompatActivity() {
     private val receiverObject: ReceiverObject by inject()

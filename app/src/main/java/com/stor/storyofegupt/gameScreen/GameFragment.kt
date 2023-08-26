@@ -1,4 +1,4 @@
-package com.example.storyofegupt.gameScreen
+package com.stor.storyofegupt.gameScreen
 
 import android.app.Activity
 import android.os.Bundle
@@ -7,14 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.findFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.storyofegupt.R
+import com.stor.storyofegupt.R
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 

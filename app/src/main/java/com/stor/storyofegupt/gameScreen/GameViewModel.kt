@@ -1,4 +1,4 @@
-package com.example.storyofegupt.gameScreen
+package com.stor.storyofegupt.gameScreen
 
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel

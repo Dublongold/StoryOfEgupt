@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerClient.InstallReferrerResponse
 import com.android.installreferrer.api.InstallReferrerStateListener
+import com.facebook.FacebookSdk
 import com.facebook.applinks.AppLinkData
 import com.stor.storyofegupt.R
 import com.stor.storyofegupt.gameScreen.GameFragment
@@ -85,13 +86,11 @@ class MainActivity : AppCompatActivity() {
                                         // Делаем диплинк запрос
                                         AppLinkData.fetchDeferredAppLinkData(this@MainActivity
                                         ) { appLinkData: AppLinkData? ->
-                                            Log.e("DEEP", "SRABOTAL")
                                             val tree = appLinkData?.argumentBundle?.getString("target_url")
-                                            val uri = tree?.split("$")
-                                            var url: String? = null
-                                            uri?.let { u ->
-                                                url = "https://$u"
-                                            }
+                                            Log.i("Deep", "Tree: $tree")
+                                            Log.i("Deep", "appLinkData: $appLinkData")
+                                            Log.i("Deep", "targetUri: ${appLinkData?.targetUri}")
+                                            val url = appLinkData?.targetUri?.toString()?.replace("/", "%2F")?.replace(":", "%3A")
                                             // Делаем запрос на сервер.
                                             makeSecondRequest(url, r)
                                         }
